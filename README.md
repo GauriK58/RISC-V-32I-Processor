@@ -21,8 +21,6 @@ A from-scratch implementation of a 64-bit RISC-V (RV64I) processor in Verilog HD
   - [Hazard Detection Unit](#hazard-detection-unit)
   - [Control Hazards](#control-hazards)
 - [Testing — Pipelined Processor](#testing--pipelined-processor)
-- [Repository Structure](#repository-structure)
-- [Contributions](#contributions)
 
 ---
 
