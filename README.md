@@ -96,30 +96,28 @@ Four pipeline registers separate the stages and carry both data and control sign
 - **ID/EX** — rs1, rs2, Immediate, rd, ALUOp, ALUSrc, Branch, MemRead, MemWrite, MemtoReg, RegWrite
 - **EX/MEM** — ALU result, Branch target, Zero flag, Store data, MemRead, MemWrite, MemtoReg, RegWrite, rd
 - **MEM/WB** — Memory read data, ALU result, rd, MemtoReg, RegWrite
-
+  
 ### Forwarding Unit
-
+ 
 A purely combinational unit that resolves most RAW (read-after-write) data hazards by bypassing a result from the EX/MEM or MEM/WB pipeline register directly into the EX stage instead of waiting for it to be written back to the register file.
-
-INPUTS: rs1_idex[4:0], rs2_idex[4:0], rd_exmem[4:0], rd_memwb[4:0], regwrite_exmem, regwrite_memwb
-OUTPUTS: forwardA[1:0], forwardB[1:0] — encoded as 00 = no forwarding (use register file), 10 = forward from EX/MEM, 01 = forward from MEM/WB
-EX Hazard — the instruction immediately preceding the current one writes to a register the current instruction reads (e.g. addi x5, x0, 10 followed by add x6, x5, x7). The result is still sitting in EX/MEM and is forwarded straight to the EX stage.
-MEM Hazard — a value is needed two instructions later, before it's been written back (e.g. addi x3, x0, 5 ... two instructions later, sub x9, x3, x8). The result is forwarded from MEM/WB to the EX stage.
-
+ 
+- **INPUTS:** `rs1_idex[4:0]`, `rs2_idex[4:0]`, `rd_exmem[4:0]`, `rd_memwb[4:0]`, `regwrite_exmem`, `regwrite_memwb`
+- **OUTPUTS:** `forwardA[1:0]`, `forwardB[1:0]` — encoded as `00` = no forwarding (use register file), `10` = forward from EX/MEM, `01` = forward from MEM/WB
+- **EX Hazard** — the instruction immediately preceding the current one writes to a register the current instruction reads (e.g. `addi x5, x0, 10` followed by `add x6, x5, x7`). The result is still sitting in EX/MEM and is forwarded straight to the EX stage.
+- **MEM Hazard** — a value is needed two instructions later, before it's been written back (e.g. `addi x3, x0, 5` ... two instructions later, `sub x9, x3, x8`). The result is forwarded from MEM/WB to the EX stage.
 EX-hazard forwarding takes priority over MEM-hazard forwarding whenever both apply to the same operand.
-
+ 
 ### Hazard Detection Unit
-
-Handles the one case forwarding alone can't fix: the load-use hazard. A ld instruction's result isn't ready until the end of MEM — one cycle too late to forward into the EX stage of the very next instruction (e.g. ld x5, 0(x1) followed by sub x6, x5, x2). The Hazard Detection Unit checks whether the instruction in ID/EX is a load whose destination register conflicts with a source register of the instruction currently in IF/ID.
-
-INPUTS: rs1_id[4:0], rs2_id[4:0], rd_idex[4:0], memread_idex
-OUTPUTS: stall
-
-When a conflict is detected, stall freezes the PC and the IF/ID register for one cycle and a NOP bubble is inserted into ID/EX, giving the loaded value time to reach MEM/WB before it's consumed — at which point the Forwarding Unit takes over.
-
+ 
+Handles the one case forwarding alone can't fix: the load-use hazard. A `ld` instruction's result isn't ready until the end of MEM — one cycle too late to forward into the EX stage of the very next instruction (e.g. `ld x5, 0(x1)` followed by `sub x6, x5, x2`). The Hazard Detection Unit checks whether the instruction in ID/EX is a load whose destination register conflicts with a source register of the instruction currently in IF/ID.
+ 
+- **INPUTS:** `rs1_id[4:0]`, `rs2_id[4:0]`, `rd_idex[4:0]`, `memread_idex`
+- **OUTPUTS:** `stall`
+When a conflict is detected, `stall` freezes the PC and the IF/ID register for one cycle and a NOP bubble is inserted into ID/EX, giving the loaded value time to reach MEM/WB before it's consumed — at which point the Forwarding Unit takes over.
+ 
 ### Control Hazards
-
-Branch prediction is implemented implicitly as always not-taken: the pipeline keeps fetching sequentially (PC + 4) until the branch is resolved in the EX stage. If the branch turns out to be taken, ex_branch_taken asserts both branch_taken (redirecting the PC to the branch target) and flush (discarding the two wrong-path instructions already sitting in IF and ID). This gives the design a branch misprediction penalty of 2 cycles.
+ 
+Branch prediction is implemented implicitly as always not-taken: the pipeline keeps fetching sequentially (PC + 4) until the branch is resolved in the EX stage. If the branch turns out to be taken, `ex_branch_taken` asserts both `branch_taken` (redirecting the PC to the branch target) and `flush` (discarding the two wrong-path instructions already sitting in IF and ID). This gives the design a branch misprediction penalty of **2 cycles**.
 
 ## Testing — Pipelined Processor
 
