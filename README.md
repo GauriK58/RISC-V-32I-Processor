@@ -49,7 +49,7 @@ T_clock ≥ T_IF + T_ID + T_EX + T_MEM + T_WB
 
 The clock frequency is therefore limited by the slowest cumulative path through the datapath.
 
-![Sequential Datapath](images/sequential.png)
+![Sequential Datapath](Sequential/sequential.png)
 
 ### Modules
 
@@ -86,7 +86,7 @@ Assembly source and its machine-code translation are stored as `name_instruction
 
 To improve throughput, the processor also implements a classic **5-stage pipeline** (IF, ID, EX, MEM, WB), allowing multiple instructions to be in flight simultaneously — similar to an assembly line.
 
-![Pipelined Datapath](images/pipelined.png)
+![Pipelined Datapath](Pipelined/pipelined.png)
 
 ### Pipeline Registers
 
