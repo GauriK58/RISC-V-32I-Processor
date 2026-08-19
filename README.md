@@ -2,8 +2,8 @@
 
 A from-scratch implementation of a 64-bit RISC-V (RV64I) processor in Verilog HDL, simulated with iVerilog. The project includes two versions of the datapath:
 
-1. **Sequential (Non-Pipelined) Processor** — executes one complete instruction per clock cycle.
-2. **Pipelined Processor** — a 5-stage pipeline with forwarding and hazard detection.
+1. **Sequential (Non-Pipelined) Processor**: executes one complete instruction per clock cycle.
+2. **Pipelined Processor**: a 5-stage pipeline with forwarding and hazard detection.
 
 ---
 
